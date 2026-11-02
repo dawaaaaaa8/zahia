@@ -15,7 +15,14 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* хоёр товшиход томрохгүй */
+  overflow-x: clip;
+}
+body { font-family: var(--sans); background: #ffd6e0; overflow-x: clip; overscroll-behavior-y: none; -webkit-font-smoothing: antialiased; }
 
 /* ---------- үндсэн дэвсгэр + сэдвүүд ---------- */
 .root {
@@ -44,6 +51,8 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
 
 /* ---------- орчны анимаци ---------- */
 .fx { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.fx.layer { animation: fxIn 1.4s ease both; }
+@keyframes fxIn { from { opacity: 0; } }
 
 .hearts span {
   position: absolute; bottom: -40px;
@@ -62,7 +71,7 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
   opacity: 0; transition: opacity 1.2s;
   animation: tw 3s ease-in-out infinite;
 }
-.root[data-t="night"] .stars i { opacity: .85; }
+.stars i { opacity: .85; }
 @keyframes tw { 50% { transform: scale(.4); } }
 
 .shoot {
@@ -71,7 +80,7 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
   background: linear-gradient(90deg, transparent, #fff);
   opacity: 0; transform: rotate(18deg);
 }
-.root[data-t="night"] .shoot { animation: shoot 5.5s ease-in 1.2s infinite; }
+.shoot { animation: shoot 5.5s ease-in 1.2s infinite; }
 @keyframes shoot {
   0%        { opacity: 0; transform: translate(0, 0) rotate(18deg); }
   4%        { opacity: 1; }
@@ -87,7 +96,8 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
   opacity: 0; transform: translateY(25%);
   transition: opacity 1.4s ease, transform 2s cubic-bezier(.2, .8, .3, 1);
 }
-.root[data-t="dawn"] .sun { opacity: .95; transform: none; }
+.sun { opacity: .95; transform: none; animation: sunUp 2s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes sunUp { from { opacity: 0; transform: translateY(25%); } }
 
 /* үүл — тэнгэрийн хэсэгт */
 .clouds i {
@@ -101,7 +111,7 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
 .clouds i:nth-child(1) { top: 12%; animation-duration: 38s; animation-delay: -6s; }
 .clouds i:nth-child(2) { top: 46%; animation-duration: 52s; animation-delay: -30s; transform: scale(.7); }
 .clouds i:nth-child(3) { top: 78%; animation-duration: 44s; animation-delay: -18s; }
-.root[data-t="sky"] .clouds i { opacity: .75; }
+.clouds i { opacity: .75; }
 @keyframes cloud { to { left: 120vw; } }
 
 /* гэрэлт цох — лаа ба алтан хэсэгт */
@@ -112,7 +122,7 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
   opacity: 0; transition: opacity 1.2s;
   animation: drift ease-in-out infinite alternate;
 }
-.root[data-t="plum"] .flies i, .root[data-t="gold"] .flies i { opacity: .9; }
+.flies i { opacity: .9; }
 @keyframes drift {
   0%   { transform: translate(0, 0); }
   33%  { transform: translate(30px, -40px); }
@@ -250,15 +260,16 @@ body { font-family: var(--sans); background: #ffd6e0; overflow-x: hidden; -webki
 
 /* хуудас солигдох анимаци */
 .paper.enter-first { animation: unfold 1s cubic-bezier(.2, .8, .3, 1) both; }
-.paper.enter-fwd   { animation: inFwd .75s cubic-bezier(.2, .8, .3, 1) both; }
-.paper.enter-bwd   { animation: inBwd .75s cubic-bezier(.2, .8, .3, 1) both; }
-.paper.leave-fwd   { animation: outFwd .42s ease-in both; }
-.paper.leave-bwd   { animation: outBwd .42s ease-in both; }
-@keyframes unfold { from { opacity: 0; transform: translateY(50px) scale(.7) rotateX(45deg); } }
-@keyframes inFwd  { from { opacity: 0; transform: translateX(80px) rotate(3deg) scale(.96); } }
-@keyframes inBwd  { from { opacity: 0; transform: translateX(-80px) rotate(-3deg) scale(.96); } }
-@keyframes outFwd { to   { opacity: 0; transform: translateX(-100px) rotate(-5deg) scale(.94); } }
-@keyframes outBwd { to   { opacity: 0; transform: translateX(100px) rotate(5deg) scale(.94); } }
+.paper.enter-fwd   { animation: inFwd .8s cubic-bezier(.2, .8, .3, 1) both; transform-origin: 0 50%; }
+.paper.enter-bwd   { animation: inBwd .8s cubic-bezier(.2, .8, .3, 1) both; transform-origin: 100% 50%; }
+.paper.leave-fwd   { animation: outFwd .45s cubic-bezier(.5, 0, .75, 0) both; transform-origin: 0 50%; }
+.paper.leave-bwd   { animation: outBwd .45s cubic-bezier(.5, 0, .75, 0) both; transform-origin: 100% 50%; }
+@keyframes unfold { from { opacity: 0; transform: perspective(1200px) translateY(50px) scale(.7) rotateX(45deg); } }
+/* ном шиг эргэнэ */
+@keyframes outFwd { to   { opacity: 0; transform: perspective(1200px) rotateY(-100deg); filter: brightness(.85); } }
+@keyframes outBwd { to   { opacity: 0; transform: perspective(1200px) rotateY(100deg);  filter: brightness(.85); } }
+@keyframes inFwd  { from { opacity: 0; transform: perspective(1200px) rotateY(35deg) translateX(30px); } }
+@keyframes inBwd  { from { opacity: 0; transform: perspective(1200px) rotateY(-35deg) translateX(-30px); } }
 
 /* тамга */
 .stamp {
@@ -291,9 +302,15 @@ h1 .w {
   animation: wordIn .7s cubic-bezier(.2, .8, .3, 1) both;
   animation-delay: calc(.25s + var(--i) * .09s);
 }
+h1.long { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+.closing {
+  margin: -6px 0 20px;
+  font: italic 700 1.4rem / 1.35 var(--serif); color: var(--accent);
+  animation: write 1.8s ease both;
+}
 @keyframes wordIn { from { opacity: 0; transform: translateY(.45em); filter: blur(6px); } }
 
-.tx { font-size: 1.04rem; line-height: 1.75; margin: 0 0 24px; cursor: pointer; text-wrap: pretty; }
+.tx { -webkit-user-select: none; user-select: none; font-size: 1.04rem; line-height: 1.75; margin: 0 0 24px; cursor: pointer; text-wrap: pretty; white-space: pre-line; }
 .tx.q { font: italic 500 1.22rem / 1.6 var(--serif); }
 .ghost { color: transparent; }
 .caret {
@@ -365,20 +382,20 @@ ul.l li {
 @keyframes fadeUp   { from { opacity: 0; transform: translateY(14px); } }
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-14px); } }
 
-/* ---------- туулай ---------- */
-.bunny {
+/* ---------- бамбарууш ---------- */
+.mascot {
   --size: 88px;
   position: absolute; z-index: 5;
   left: 22px; top: calc(var(--size) * -0.9 + 2px);
   width: var(--size);
 }
-.env .bunny { inset: auto; --size: 80px; left: 6%; top: calc(var(--size) * -0.9 + 4px); }
+.env .mascot { inset: auto; --size: 80px; left: 6%; top: calc(var(--size) * -0.9 + 4px); }
 .tilt { position: relative; }
 .hopper-btn { display: block; width: 100%; border: 0; background: none; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hopper { transform-origin: 50% 100%; animation: peek .8s cubic-bezier(.3, 1.5, .5, 1) both; }
 .hopper svg { display: block; width: 100%; overflow: visible; animation: sway 4s ease-in-out infinite; transform-origin: 50% 90%; }
 .hopper.hop { animation: hop .65s cubic-bezier(.3, 1.4, .5, 1); }
-.bunny.dance .hopper { animation: hop .55s cubic-bezier(.3, 1.4, .5, 1) infinite; }
+.mascot.dance .hopper { animation: hop .55s cubic-bezier(.3, 1.4, .5, 1) infinite; }
 @keyframes peek { from { transform: translateY(40%) scale(.6); opacity: 0; } }
 @keyframes hop {
   0%   { transform: translateY(0) scale(1, 1); }
@@ -389,22 +406,27 @@ ul.l li {
 }
 @keyframes sway { 50% { transform: rotate(-4deg); } }
 
-.bunny .fur { fill: #fffdfb; stroke: #5b3a46; stroke-width: 2.4; }
-.bunny .line { fill: none; stroke: #5b3a46; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.bunny .line.thin { stroke-width: 1.4; }
-.bunny .ear { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.3, 1.4, .5, 1); }
-.bunny .ear.l { animation: earL 5s ease-in-out infinite; }
-.bunny .ear.r { animation: earR 5s ease-in-out 1.3s infinite; }
-@keyframes earL { 0%, 80%, 100% { rotate: 0deg; } 85% { rotate: -14deg; } 90% { rotate: 4deg; } }
-@keyframes earR { 0%, 80%, 100% { rotate: 0deg; } 85% { rotate: 14deg; } 90% { rotate: -4deg; } }
-.bunny.sorry .ear.l, .bunny.sleepy .ear.l { transform: rotate(-38deg) translateY(6px); }
-.bunny.sorry .ear.r, .bunny.sleepy .ear.r { transform: rotate(38deg) translateY(6px); }
-.bunny .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
+.mascot .fur { fill: #c8956d; stroke: #5a3a2a; stroke-width: 2.4; }
+.mascot .inner { fill: #f0c4a8; }
+.mascot .light { fill: #f6e2cf; stroke: #5a3a2a; stroke-width: 1.6; }
+.mascot .line { fill: none; stroke: #2e1d18; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.mascot .line.thin { stroke-width: 1.4; }
+.mascot .ear { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.3, 1.4, .5, 1); }
+.mascot .ear.l { animation: earL 5s ease-in-out infinite; }
+.mascot .ear.r { animation: earR 5s ease-in-out 1.3s infinite; }
+@keyframes earL { 0%, 80%, 100% { rotate: 0deg; } 85% { rotate: -10deg; } 90% { rotate: 4deg; } }
+@keyframes earR { 0%, 80%, 100% { rotate: 0deg; } 85% { rotate: 10deg; } 90% { rotate: -4deg; } }
+.mascot.sorry .ear.l, .mascot.sleepy .ear.l { transform: rotate(-18deg) translate(3px, 5px); }
+.mascot.sorry .ear.r, .mascot.sleepy .ear.r { transform: rotate(18deg) translate(-3px, 5px); }
+.mascot .held-heart { transform-box: fill-box; transform-origin: center; animation: thump 1.4s ease-in-out infinite; }
+.mascot.love .held-heart { animation-duration: .7s; }
+.mascot.sorry .held-heart { animation: none; }
+.mascot .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
 @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
-.bunny .tear { animation: tear 2.4s ease-in infinite; }
+.mascot .tear { animation: tear 2.4s ease-in infinite; }
 @keyframes tear { 0% { opacity: 0; transform: translateY(-4px); } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
-.bunny .heart-eyes path { transform-box: fill-box; transform-origin: center; animation: thump .8s ease-in-out infinite; }
-@keyframes thump { 50% { scale: 1.3; } }
+.mascot .heart-eyes path { transform-box: fill-box; transform-origin: center; animation: thump .8s ease-in-out infinite; }
+@keyframes thump { 50% { scale: 1.15; } }
 
 .bubble {
   position: absolute; left: calc(100% - 4px); top: 6px; z-index: 6;
@@ -446,38 +468,51 @@ ul.l li {
 /* ---------- гар утас ---------- */
 @media (max-width: 420px) {
   .page { padding-top: 66px; }
-  .bunny { --size: 76px; left: 16px; }
-  .env .bunny { --size: 70px; }
+  .mascot { --size: 76px; left: 16px; }
+  .env .mascot { --size: 70px; }
   .bubble { font-size: .78rem; padding: 6px 10px; }
   .paper { padding: 40px 22px 24px; border-radius: 6px 6px 18px 6px; }
   .paper::before { inset: 8px; }
   h1 { font-size: clamp(1.9rem, 9.5vw, 2.4rem); padding-right: 46px; }
+  h1.long { font-size: clamp(1.6rem, 7.6vw, 1.95rem); }
+  .closing { font-size: 1.25rem; }
   .tx { font-size: 1rem; line-height: 1.7; margin-bottom: 20px; }
   .tx.q { font-size: 1.12rem; }
   ul.l li { font-size: .95rem; padding: 9px 12px; }
   .stamp { top: 14px; right: 14px; width: 40px; height: 48px; }
   .btn { padding: 13px 22px; font-size: .95rem; }
-  .choices .btn { flex: 1 1 100%; }
+  .choices .btn, .row.actions .btn { flex: 1 1 100%; }
+  .btn { min-height: 48px; }
   .nav { gap: 10px; }
   .dots { gap: 5px; }
   .dots i.on { width: 16px; }
 }
 @media (max-width: 340px) {
+  .root { padding-left: 10px; padding-right: 10px; }
+  .page { width: 100%; }
   .paper { padding: 36px 16px 20px; }
+  .tx { font-size: .96rem; line-height: 1.65; }
+  .tx.q { font-size: 1.06rem; }
+  .bubble { font-size: .72rem; }
   .ic { font-size: 2.1rem; }
   .dots i { width: 6px; height: 6px; }
 }
 /* намхан дэлгэц (жижиг утас, хэвтээ байрлал) */
 @media (max-height: 700px) {
   .page { gap: 12px; padding-top: 62px; }
-  .bunny { --size: 70px; }
+  .mascot { --size: 70px; }
   .paper { padding-top: 34px; }
   .ic { font-size: 2.1rem; }
   h1 { margin: 10px 0; }
   .intro { gap: 24px; }
   .env { width: min(70vw, 270px); }
 }
-@media (max-height: 480px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) {
+  .page { width: min(86vw, 640px); padding-top: 60px; }
+  .mascot { --size: 64px; }
+  h1, h1.long { font-size: 1.9rem; padding-right: 50px; }
+  .ic { font-size: 1.8rem; }
+  .paper { padding: 30px 28px 22px; }
   .to { position: static; margin-bottom: 8px; }
   .intro { gap: 16px; }
   .env { width: 200px; }

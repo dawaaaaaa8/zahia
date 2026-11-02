@@ -6,7 +6,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "rea
 
 const TO = "Зөвхөн Ариунгэрэлд 💌";
 const INTRO_BUTTON = "Чамд нэг жижигхэн зүйл бэлдсэн юм аа...";
-const SIGNATURE = "— чамд хайртай хүн чинь";
+const SIGNATURE = "— чамайг хайртай хүн чинь";
 
 // t = өнгөний сэдэв: blush | dawn | night | plum | gold | sky | lilac | rose
 const SCENES = [
@@ -88,7 +88,7 @@ const SCENES = [
 
 // Бамбарууш дээр дарахад хэлэх үгс
 const INTRO_SAY = "Чамд захиа ирлээ! 💌";
-const POKE_LINES = [ "Тэврээч 🧸", "Чи хөөрхөн шүү 🌸", ];
+const POKE_LINES = ["Хи хи 🙈", "Тэврээч 🧸", "Чи хөөрхөн шүү 🌸", "Энэ зүрх чинийх ♡", "Гижигдэж байна!"];
 
 /* ================================================================== */
 
@@ -269,7 +269,7 @@ function Title({ text, long }) {
   );
 }
 
-function Ambient() {
+function Ambient({ t }) {
   const data = useMemo(
     () => ({
       hearts: Array.from({ length: 16 }, (_, i) => ({
@@ -279,7 +279,7 @@ function Ambient() {
         delay: -Math.random() * 14,
         c: ["♡", "♥", "❀", "✦"][i % 4],
       })),
-      stars: Array.from({ length: 60 }, () => ({
+      stars: Array.from({ length: 40 }, () => ({
         top: Math.random() * 100,
         left: Math.random() * 100,
         size: 1 + Math.random() * 2.4,
@@ -295,23 +295,30 @@ function Ambient() {
     []
   );
 
+  // Зөвхөн тухайн хуудсанд хэрэгтэй анимацийг ажиллуулна (утсыг удаашруулахгүй)
   return (
     <>
-      <div className="fx sun" aria-hidden="true" />
-      <div className="fx clouds" aria-hidden="true">
-        <i /><i /><i />
-      </div>
-      <div className="fx stars" aria-hidden="true">
-        {data.stars.map((s, i) => (
-          <i key={i} style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s` }} />
-        ))}
-        <b className="shoot" />
-      </div>
-      <div className="fx flies" aria-hidden="true">
-        {data.flies.map((f, i) => (
-          <i key={i} style={{ top: `${f.top}%`, left: `${f.left}%`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
-        ))}
-      </div>
+      {t === "dawn" && <div className="fx sun layer" aria-hidden="true" />}
+      {t === "sky" && (
+        <div className="fx clouds layer" aria-hidden="true">
+          <i /><i /><i />
+        </div>
+      )}
+      {t === "night" && (
+        <div className="fx stars layer" aria-hidden="true">
+          {data.stars.map((s, i) => (
+            <i key={i} style={{ top: `${s.top}%`, left: `${s.left}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s` }} />
+          ))}
+          <b className="shoot" />
+        </div>
+      )}
+      {(t === "plum" || t === "gold") && (
+        <div className="fx flies layer" aria-hidden="true">
+          {data.flies.map((f, i) => (
+            <i key={i} style={{ top: `${f.top}%`, left: `${f.left}%`, animationDuration: `${f.dur}s`, animationDelay: `${f.delay}s` }} />
+          ))}
+        </div>
+      )}
       <div className="fx hearts" aria-hidden="true">
         {data.hearts.map((h, i) => (
           <span key={i} style={{ left: `${h.left}%`, fontSize: h.size, animationDuration: `${h.dur}s`, animationDelay: `${h.delay}s` }}>
@@ -485,12 +492,12 @@ export default function Home() {
     <main
       className="root"
       data-t={scene ? scene.t : "blush"}
-      onPointerDown={spawnHeart}
+      onClick={spawnHeart}
       onPointerMove={sparkle}
       onTouchStart={(e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY })}
       onTouchEnd={onTouchEnd}
     >
-      {mounted && <Ambient />}
+      {mounted && <Ambient t={scene ? scene.t : "blush"} />}
 
       <div className="trail" ref={trailRef} aria-hidden="true" />
       {answer === "yes" && <HeartRain />}
